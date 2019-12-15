@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Fitness.Model
 {
-    class User
+    [Serializable]
+    public class User
     {
         public string Name { get; }
 
