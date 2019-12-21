@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.Serialization.Formatters.Binary;
-
+using System.IO;
 
 namespace Fitness.Controller
 {
@@ -14,17 +14,48 @@ namespace Fitness.Controller
     
         public User User { get; }
 
-        public UserController (User user)
+        public UserController (string userName, string genderName, DateTime birthday, double weight, double height )
         {
-            User = user ?? throw new ArgumentNullException("Пользователь не может быть Null", nameof(user));
+            var gender = new Gender(genderName);
+            var user = new User(userName, gender, birthday, weight, height);
+            User = user;
         }
         
-        public bool Save(User User)
+        /// <summary>
+        /// Сохранить данные.
+        /// </summary>
+        public void Save()
         {
-
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (var fs = new FileStream("users.dat", FileMode.OpenOrCreate))
+            {
+                formatter.Serialize(fs, User);
+            }
         }
 
+        /// <summary>
+        /// Загрузить данные.
+        /// </summary>
+        /// <returns>Пользователь приложения.</returns>
+        public User Load()
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (var fs = new FileStream("users.dat", FileMode.OpenOrCreate))
+            {
+                var user = (User)formatter.Deserialize(fs);
+                return user;
+            }
+        }
 
+        public UserController()
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            using(var fs = new FileStream("users.dat", FileMode.OpenOrCreate))
+            {
+                if (formatter.Deserialize(fs) is User user) User = user;
+            }
+
+        }
 
     }
 }
