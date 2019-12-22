@@ -9,18 +9,53 @@ using System.IO;
 
 namespace Fitness.Controller
 {
+    
     public class UserController
     {
     
-        public User User { get; }
+        public List<User> Users { get; }
 
-        public UserController (string userName, string genderName, DateTime birthday, double weight, double height )
+        public User CurrentUser { get; }
+
+        public bool IsNewUser { get; } = false;
+
+        public UserController (string userName)
         {
-            var gender = new Gender(genderName);
-            var user = new User(userName, gender, birthday, weight, height);
-            User = user;
+            if (string.IsNullOrWhiteSpace(userName)) 
+            {
+                throw new ArgumentNullException("Имя не может быть Null",nameof(userName));
+            }
+
+            Users = GetUsersData();
+            
+            CurrentUser = Users.SingleOrDefault(u => u.Name == userName);
+            
+            if (CurrentUser == null) 
+            { 
+                CurrentUser = new User(userName);
+                Users.Add(CurrentUser);
+                Save();
+                IsNewUser = true;
+            }
         }
-        
+
+        /// <summary>
+        /// Получить список пользователей.
+        /// </summary>
+        /// <returns></returns>
+        private List<User> GetUsersData()
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (var fs = new FileStream("users.dat", FileMode.OpenOrCreate))
+            {
+                if (fs.Length > 0 && formatter.Deserialize(fs) is List<User> Users)
+                {
+                    return Users;
+                }
+                else return new List<User>();
+            }
+        }
+                                   
         /// <summary>
         /// Сохранить данные.
         /// </summary>
@@ -29,33 +64,20 @@ namespace Fitness.Controller
             BinaryFormatter formatter = new BinaryFormatter();
             using (var fs = new FileStream("users.dat", FileMode.OpenOrCreate))
             {
-                formatter.Serialize(fs, User);
+                formatter.Serialize(fs, Users);
             }
         }
 
-        /// <summary>
-        /// Загрузить данные.
-        /// </summary>
-        /// <returns>Пользователь приложения.</returns>
-        public User Load()
+        public void SetNewUserDate(string genderName, DateTime birthDate, double weight = 1, double height = 1)
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (var fs = new FileStream("users.dat", FileMode.OpenOrCreate))
-            {
-                var user = (User)formatter.Deserialize(fs);
-                return user;
-            }
+            CurrentUser.Gender = new Gender(genderName);
+            CurrentUser.BirthDate = birthDate;
+            CurrentUser.Weight = weight;
+            CurrentUser.Height = height;
+            Save();
         }
 
-        public UserController()
-        {
-            BinaryFormatter formatter = new BinaryFormatter();
-            using(var fs = new FileStream("users.dat", FileMode.OpenOrCreate))
-            {
-                if (formatter.Deserialize(fs) is User user) User = user;
-            }
-
-        }
+        
 
     }
 }

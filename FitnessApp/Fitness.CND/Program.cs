@@ -18,21 +18,50 @@ namespace Fitness.CND
             Console.WriteLine("Введите имя пользователя: ");
             var name = Console.ReadLine();
 
-            Console.WriteLine("Введите пол: ");
-            var gender = Console.ReadLine();
+            var userController = new UserController(name);
 
-            Console.WriteLine("Введите дату рождения: ");
-            var birthday = DateTime.Parse(Console.ReadLine());
+            if (userController.IsNewUser)
+            {
+                Console.Write("Введите пол: ");
+                var gender = Console.ReadLine();                
+                var birthDate = ParseDate();
 
-            Console.WriteLine("Введите вес: ");
-            var weight = Double.Parse(Console.ReadLine());
+                Console.Write("Введите свой вес: ");
+                var weight = Double.Parse(Console.ReadLine());
+                //TODO Сделать проверку.
+                Console.Write("Введите свой рост: ");
+                var height = Double.Parse(Console.ReadLine());
+                //TODO Сделать проверку.
 
-            Console.WriteLine("Введите рост: ");
-            var height = Double.Parse(Console.ReadLine());
+                userController.SetNewUserDate(gender, birthDate, weight, height);
+            }
 
-            var userController = new UserController(name, gender, birthday, weight, height);
 
-            userController.Save();
+
+
+
+
+            Console.WriteLine(userController.CurrentUser);
+            Console.ReadLine();
+        }
+
+        private static DateTime ParseDate()
+        {
+            DateTime birthDate;
+            while (true)
+            {
+                Console.Write("Введите дату рождения (дд. мм. гггг) : ");
+                if (DateTime.TryParse(Console.ReadLine(), out birthDate))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Не верный формат даты! ");
+                }
+            }
+
+            return birthDate;
         }
     }
 }

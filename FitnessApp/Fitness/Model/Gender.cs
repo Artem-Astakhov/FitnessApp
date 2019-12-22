@@ -4,11 +4,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 
+
 namespace Fitness.Model
 {
    /// <summary>
    /// Пол.
    /// </summary>
+    [Serializable]
     public class Gender
     {
         /// <summary>
