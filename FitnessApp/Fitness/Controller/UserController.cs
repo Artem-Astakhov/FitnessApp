@@ -10,9 +10,9 @@ using System.IO;
 namespace Fitness.Controller
 {
     
-    public class UserController
+    public class UserController:ControllerBase
     {
-    
+        private const string USER_FILE_NAME = "users.dat";
         public List<User> Users { get; }
 
         public User CurrentUser { get; }
@@ -45,15 +45,7 @@ namespace Fitness.Controller
         /// <returns></returns>
         private List<User> GetUsersData()
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (var fs = new FileStream("users.dat", FileMode.OpenOrCreate))
-            {
-                if (fs.Length > 0 && formatter.Deserialize(fs) is List<User> Users)
-                {
-                    return Users;
-                }
-                else return new List<User>();
-            }
+            return Load<List<User>>(USER_FILE_NAME) ?? new List<User>();          
         }
                                    
         /// <summary>
@@ -61,11 +53,7 @@ namespace Fitness.Controller
         /// </summary>
         public void Save()
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (var fs = new FileStream("users.dat", FileMode.OpenOrCreate))
-            {
-                formatter.Serialize(fs, Users);
-            }
+            Save(USER_FILE_NAME, Users);           
         }
 
         public void SetNewUserDate(string genderName, DateTime birthDate, double weight = 1, double height = 1)
