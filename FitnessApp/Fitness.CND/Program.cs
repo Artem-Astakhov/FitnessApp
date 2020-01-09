@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 using Fitness.Controller;
@@ -12,15 +14,19 @@ namespace Fitness.CND
     {
         static void Main(string[] args)
         {
+            CultureInfo culture = CultureInfo.CreateSpecificCulture("ru-ru");
+            var resourceManager = new ResourceManager("Fitness.CND.Languages.Messages",typeof(Program).Assembly);
+           
             Console.OutputEncoding = Encoding.Unicode;
             Console.InputEncoding = Encoding.Unicode;
             
-            Console.WriteLine("Fitness App!");
-            Console.WriteLine("Введите имя пользователя: ");
+            Console.WriteLine(resourceManager.GetString("Hello",culture));
+            Console.WriteLine(resourceManager.GetString("EnterName", culture));
             var name = Console.ReadLine();
 
             var userController = new UserController(name);
             var eatingController = new EatingController(userController.CurrentUser);
+            var exercisesConrroller = new ExerciseController(userController.CurrentUser);
 
             if (userController.IsNewUser)
             {
@@ -41,7 +47,9 @@ namespace Fitness.CND
 
             Console.WriteLine("Что сделать? ");
             Console.WriteLine("1 - ввести прием пищи.");
+            Console.WriteLine("2 - ввести упражнение. ");
             var key = int.Parse(Console.ReadLine());
+            
 
             switch (key)
             {
@@ -53,6 +61,14 @@ namespace Fitness.CND
                         Console.WriteLine($"\t {item.Key} - {item.Value}");
                     }
                     break;
+                case 2:
+                    var exercises = EnterExercise();
+                    exercisesConrroller.Add(exercises.activity, exercises.begin, exercises.end);
+                    foreach(var item in exercisesConrroller.Exersises)
+                    {
+                        Console.WriteLine($"{item.Activity} c {item.Start.ToShortTimeString()} до {item.Finish.ToShortTimeString()}");
+                    }
+                    break;
             }
 
             
@@ -62,6 +78,19 @@ namespace Fitness.CND
         }
 
        
+        private static (DateTime begin, DateTime end, Activity activity) EnterExercise()
+        {
+            Console.WriteLine("введите название упражнения: ");
+            var name = Console.ReadLine();
+            var start = ParseTime("начало упражнения ");
+            var end = ParseTime("конец упражнения ");
+            var energy = ParseDouble("расход енергии в минуту ");
+            var act = new Activity(name, energy);
+
+            return (start, end, act);
+
+
+        }
         
         private static (Food Food, double Weight) EnterEating()
         {
@@ -112,6 +141,26 @@ namespace Fitness.CND
                     Console.WriteLine($"Введите {name} в числовом формате");
                 }              
             }
+        }
+
+        private static DateTime ParseTime(string value)
+        {
+            DateTime time;
+            
+            while (true)
+            {
+                Console.Write($"введите {value} в формате чч:мм : ");
+                if (DateTime.TryParse(Console.ReadLine(), out time))
+                {
+                    return time;
+                }
+                else
+                {
+                    Console.WriteLine($"Введите {value} в формате чч:мм :");
+                }
+
+            }
+            
         }
     }
 }
