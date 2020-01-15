@@ -12,11 +12,14 @@ namespace Fitness.Model
     /// </summary>
     public class Eating
     {
-        public DateTime Moment { get; }
+        public int Id { get; set; }
+        public DateTime Moment { get; set; }
 
-        public Dictionary<Food,double> Foods { get; }
+        public Dictionary<Food,double> Foods { get; set; }
 
-        public User User { get; }
+        public int UserId { get; set; }
+
+        public virtual User User { get; set; }
 
         public Eating(User user)
         {

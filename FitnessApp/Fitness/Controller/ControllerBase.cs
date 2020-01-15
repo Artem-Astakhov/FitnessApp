@@ -10,26 +10,17 @@ namespace Fitness.Controller
 {
     public abstract class ControllerBase
     {
+        protected ISaver saver = new SerialiseISaver();
+        protected ISaver saver2 = new DataBaseSaver();
         protected void Save(string fileName, object item)
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (var fs = new FileStream(fileName, FileMode.OpenOrCreate))
-            {
-                formatter.Serialize(fs, item);
-            }
+            saver.Save(fileName, item);
+            saver2.Save(fileName, item);
         }
 
-        protected T Load<T>(string fileName)
+        protected T Load<T>(string fileName)where T: class
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (var fs = new FileStream(fileName, FileMode.OpenOrCreate))
-            {
-                if (fs.Length > 0 && formatter.Deserialize(fs) is T items)
-                {
-                    return items;
-                }
-                else return default(T);
-            }
+            return saver.Load<T>(fileName);
         }
 
 

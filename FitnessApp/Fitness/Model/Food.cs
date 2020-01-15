@@ -9,7 +9,8 @@ namespace Fitness.Model
     [Serializable]
     public class Food
     {
-        public string Name { get; }
+        public int Id { get; set; }
+        public string Name { get; set; }
 
         public double Proteins { get; set; }
 
